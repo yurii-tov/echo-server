@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>echo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+    <div>%s</div>
+</body>
+<script>
+    let data_container = document.querySelector('#json');
+    if (data_container) {
+       let obj = JSON.parse(data_container.innerHTML);
+       data_container.innerHTML = JSON.stringify(obj, null, 2);
+    }
+</script>
+</html>

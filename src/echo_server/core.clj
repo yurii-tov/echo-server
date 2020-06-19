@@ -1,17 +1,20 @@
 (ns echo-server.core
   (:gen-class)
   (:require [org.httpkit.server :as server]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [clojure.java.io :as io]))
 
 
 (defn format-received-data [payload]
-  (let [data (if-let [parsed-json (try (json/read-str payload)
-                                       (catch Exception e))]
-               (with-out-str (json/pprint parsed-json
-                                          :escape-unicode nil))
-               payload)]
-    (format "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head><body><pre>%s</pre></body></html>\n"
-            data)))
+  (let [parsed-json (try (json/read-str payload)
+                         (catch Exception e))
+        data (if parsed-json
+               (format "<pre id='json'>%s</pre>"
+                       (json/write-str parsed-json
+                                       :escape-unicode nil))
+               payload)
+        template (slurp (clojure.java.io/resource "index.html"))]
+    (format template data)))
 
 
 (let [received (atom "nothing received yet")]
