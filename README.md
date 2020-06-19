@@ -6,8 +6,7 @@
 
 # echo-server
 
-Tool to inspect incoming payloads
-
+Toy echo server
 
 <a id="org528281c"></a>
 
