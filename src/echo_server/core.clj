@@ -27,5 +27,9 @@
            :headers {"Content-Type" "text/html"}}))))
 
 
-(defn start-server []
-  (def stop-server (server/run-server app {:port 8889})))
+(defn start-server
+  ([settings]
+   (printf "Echo server running at %s\n"
+           settings)
+   (def stop-server (server/run-server app settings)))
+  ([] (start-server {:ip "0.0.0.0" :port 8889})))
