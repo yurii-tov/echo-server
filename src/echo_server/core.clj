@@ -8,12 +8,12 @@
            java.time.format.DateTimeFormatter))
 
 
-(defn format-message [m]
+(defn format-message [[t m]]
   (let [parsed-json (try (json/read-str m)
                          (catch Exception e))
         data (if parsed-json
                (format "<tr><td class='timestamp'><pre>%s</pre></td><td class='json'><pre>%s</pre></td></tr>"
-                       (.format (LocalDateTime/now) (DateTimeFormatter/ISO_DATE_TIME))
+                       t
                        (json/write-str parsed-json
                                        :escape-unicode nil))
                m)]
@@ -21,7 +21,13 @@
 
 
 (defn format-received-data [payload]
-  (let [messages (cstr/join "\n" (map format-message payload))
+  (let [messages (if payload
+                   (format "<table>
+                            <tr><th>Timestamp</th><th>Message</th></tr>
+                            %s
+                            </table>"
+                           (cstr/join "\n" (map format-message payload)))
+                   "Nothing received yet...")
         template (slurp (clojure.java.io/resource "index.html"))]
     (format template messages)))
 
@@ -36,7 +42,10 @@
      :headers {"Content-Type" "text/html"}
      :body (format-received-data
             (deref received))}
-    (do (when body (swap! received (fn [r] (cons (slurp body) r))))
+    (do (when body (swap! received
+                          (fn [r] (cons (list (.format (LocalDateTime/now) (DateTimeFormatter/ISO_DATE_TIME))
+                                              (slurp body))
+                                        r))))
         {:status 200
          :headers {"Content-Type" "text/html"}})))
 
