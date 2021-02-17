@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>echo</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-</head>
-<body>
-    <div>%s</div>
-</body>
-<script>
-    let data_container = document.querySelector('#json');
-    if (data_container) {
-       let obj = JSON.parse(data_container.innerHTML);
-       data_container.innerHTML = JSON.stringify(obj, null, 2);
-    }
-</script>
+    <head>
+        <title>echo</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+            <style>
+                body {background-color: cornsilk}
+                .json {color: royalblue}
+                .timestamp {color: green}
+                td {padding-left:0.7em; padding-bottom: 0.5em}
+            </style>
+    </head>
+    <body>
+        <table>
+            <tr><th>Timestamp</th><th>Message</th></tr>
+            %s
+        </table>
+    </body>
 </html>

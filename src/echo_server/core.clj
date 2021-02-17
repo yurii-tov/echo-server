@@ -2,32 +2,46 @@
   (:gen-class)
   (:require [org.httpkit.server :as server]
             [clojure.data.json :as json]
-            [clojure.java.io :as io]))
+            [clojure.string :as cstr]
+            [clojure.java.io :as io])
+  (:import java.time.LocalDateTime
+           java.time.format.DateTimeFormatter))
+
+
+(defn format-message [m]
+  (let [parsed-json (try (json/read-str m)
+                         (catch Exception e))
+        data (if parsed-json
+               (format "<tr><td class='timestamp'><pre>%s</pre></td><td class='json'><pre>%s</pre></td></tr>"
+                       (.format (LocalDateTime/now) (DateTimeFormatter/ISO_DATE_TIME))
+                       (json/write-str parsed-json
+                                       :escape-unicode nil))
+               m)]
+    data))
 
 
 (defn format-received-data [payload]
-  (let [parsed-json (try (json/read-str payload)
-                         (catch Exception e))
-        data (if parsed-json
-               (format "<pre id='json'>%s</pre>"
-                       (json/write-str parsed-json
-                                       :escape-unicode nil))
-               payload)
+  (let [messages (cstr/join "\n" (map format-message payload))
         template (slurp (clojure.java.io/resource "index.html"))]
-    (format template data)))
+    (format template messages)))
 
 
-(let [received (atom "nothing received yet")]
-  (defn app [{:keys [uri body]}]
-    (case uri
-      "/echo"
-      {:status 200
-       :headers {"Content-Type" "text/html"}
-       :body (format-received-data
-              (deref received))}
-      (do (when body (reset! received (slurp body)))
-          {:status 200
-           :headers {"Content-Type" "text/html"}}))))
+(def received (atom nil))
+
+
+(defn app [{:keys [uri body]}]
+  (case uri
+    "/echo"
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (format-received-data
+            (deref received))}
+    (do (when body (swap! received (fn [r] (cons (slurp body) r))))
+        {:status 200
+         :headers {"Content-Type" "text/html"}})))
+
+
+(defn cleanup [] (reset! received nil))
 
 
 (defn start-server
