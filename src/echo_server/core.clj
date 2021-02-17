@@ -41,7 +41,7 @@
          :headers {"Content-Type" "text/html"}})))
 
 
-(defn cleanup [] (reset! received nil))
+(defn reset-server [] (reset! received nil))
 
 
 (defn start-server
