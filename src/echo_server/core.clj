@@ -8,16 +8,14 @@
            java.time.format.DateTimeFormatter))
 
 
-(defn format-message [[t m]]
-  (let [parsed-json (try (json/read-str m)
-                         (catch Exception e))
-        data (if parsed-json
-               (format "<tr><td class='timestamp'><pre>%s</pre></td><td class='json'><pre>%s</pre></td></tr>"
-                       t
-                       (json/write-str parsed-json
-                                       :escape-unicode nil))
-               m)]
-    data))
+(defn format-message [[timestamp message-raw]]
+  (let [message-parsed (or (try (json/write-str (json/read-str message-raw)
+                                                :escape-unicode nil)
+                                (catch Exception e))
+                           message-raw)]
+    (format "<tr><td class='timestamp'><pre>%s</pre></td><td><pre class='json'>%s</pre></td></tr>"
+            timestamp
+            message-parsed)))
 
 
 (defn format-received-data [payload]

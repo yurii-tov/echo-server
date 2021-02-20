@@ -13,4 +13,11 @@
     <body>
         %s
     </body>
+    <script>
+        let data_containers = document.querySelectorAll('.json');
+        data_containers.forEach((c) => {
+            let obj = JSON.parse(c.innerHTML);
+            c.innerHTML = JSON.stringify(obj, null, 2);
+        });
+    </script>
 </html>
